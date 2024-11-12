@@ -24,7 +24,7 @@ jobs:
 
       # Build the Docker image from the Dockerfile inside "server" directory
       - name: Build the Docker image
-        run: docker build ./server/services-backend/auth-service --file ./server/services-backend/auth-service/Dockerfile --tag hamidsdockerhub/teleguard-auth-service:latest
+        run: docker build ./server/services-backend/auth-service --file ./services-backend/auth-service/Dockerfile --tag hamidsdockerhub/teleguard-auth-service:latest
 
       # Tag the image with a version (using timestamp as a unique tag)
       - name: Tag the Docker image
