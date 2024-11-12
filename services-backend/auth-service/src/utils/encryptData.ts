@@ -1,8 +1,8 @@
 import crypto from "crypto";
 
 // Generate a 32-byte (256-bit) key and a 16-byte IV
-// export const key = Buffer.from(process.env.CRYPTOGRAPHY_KEY as string, "hex"); // 256 bits key for AES-256
-// export const iv = Buffer.from(process.env.CRYPTOGRAPHY_IV as string, "hex"); // 128 bits IV for AES
+export const key = Buffer.from(process.env.CRYPTOGRAPHY_KEY as string, "hex"); // 256 bits key for AES-256
+export const iv = Buffer.from(process.env.CRYPTOGRAPHY_IV as string, "hex"); // 128 bits IV for AES
 
 // Encryption function
 export const encrypt = (text: string) => {
