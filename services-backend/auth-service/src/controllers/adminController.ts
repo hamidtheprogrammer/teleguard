@@ -1,7 +1,13 @@
-import { Role } from "@prisma/client";
 import { db } from "../database/dbConfig";
 import { Response, Request } from "express";
 import { usersFilterBuilder } from "../utils/filterbuilders/usersFilterBuilder";
+
+enum Role {
+  ADMIN = "ADMIN",
+  DOCTOR = "DOCTOR",
+  PATIENT = "PATIENT",
+  USER = "USER",
+}
 
 const getAllUsers = async (req: Request, res: Response) => {
   const userRole = req.user.role;

@@ -1,0 +1,39 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v4
+
+      # Log in to DockerHub
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      # Build the Docker image from the Dockerfile inside "server" directory
+      - name: Build the Docker image
+        run: docker build ./server/services-backend/auth-service --file ./server/services-backend/auth-service/Dockerfile --tag hamidsdockerhub/teleguard-auth-service:latest
+
+      # Tag the image with a version (using timestamp as a unique tag)
+      - name: Tag the Docker image
+        run: docker tag hamidsdockerhub/teleguard-auth-service:latest hamidsdockerhub/teleguard-auth-service:latest
+
+      # Push the image to DockerHub (latest)
+      - name: Push Docker image to DockerHub (latest)
+        run: docker push hamidsdockerhub/teleguard-auth-service:latest
+
+      # Push the tagged image (with timestamp)
+      - name: Push Docker image to DockerHub (tagged with timestamp)
+        run: docker push hamidsdockerhub/teleguard-auth-service:latest
