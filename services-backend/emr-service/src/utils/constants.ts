@@ -1,0 +1,32 @@
+export const medicalSpecialties = [
+  "Dermatologist",
+  "Psychiatrist",
+  "Dentist",
+  "Cardiologist",
+  "Pediatrician",
+  "Neurologist",
+  "Oncologist",
+  "Orthopedic Surgeon",
+  "Endocrinologist",
+  "Ophthalmologist",
+  "Gastroenterologist",
+  "Urologist",
+  "Gynecologist",
+  "Pulmonologist",
+  "Allergist/Immunologist",
+  "Rheumatologist",
+  "Nephrologist",
+  "Hematologist",
+  "Otolaryngologist (ENT)",
+  "Radiologist",
+];
+
+export const daysOfWeek = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];

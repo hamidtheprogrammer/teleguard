@@ -1,0 +1,29 @@
+{
+  "name": "logs-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "@types/express": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "tsx": "^4.19.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "@types/nodemon": "^1.19.6",
+    "nodemon": "^3.1.7",
+    "prisma": "^5.20.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}

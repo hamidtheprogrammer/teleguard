@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  DOB       DateTime
+  specialty String
+}
+
+model Patient {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  DOB    DateTime
+  gender          String
+  address         String
+  ethnicity       String
+  language        String
+  // insurance       InsuranceInfo
+  medicalHistory  MedicalHistory? @relation(fields: [medicalHistoryId], references: [id])
+  medications     Medications[]
+  labResults      LabResults[]
+
+  medicalHistoryId  String? @db.ObjectId @unique
+
+}
+
+// model InsuranceInfo {
+//   provider      String
+//   policyNumber  String
+// }
+
+model MedicalHistory {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  patientId       String         @db.ObjectId
+  diagnoses       String[]
+  surgeries       Surgery[]
+  allergies       String[]
+  immunizations   Immunization[]
+  patient         Patient?        @relation
+}
+
+model Surgery {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  medicalHistoryId String     @db.ObjectId
+  type          String
+  date          DateTime
+  medicalHistory MedicalHistory @relation(fields: [medicalHistoryId], references: [id])
+}
+
+model Immunization {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  medicalHistoryId String     @db.ObjectId
+  name          String
+  date          DateTime
+  medicalHistory MedicalHistory @relation(fields: [medicalHistoryId], references: [id])
+}
+
+model Medications {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  patientId     String        @db.ObjectId
+  name          String
+  dosage        String
+  frequency     String
+  startDate     DateTime
+  endDate       DateTime?
+  patient       Patient       @relation(fields: [patientId], references: [id])
+}
+
+model LabResults {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  patientId     String        @db.ObjectId
+  testName      String
+  result        String
+  unit          String
+  referenceRange String
+  date          DateTime
+  patient       Patient       @relation(fields: [patientId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  DOCTOR
+  PATIENT
+  USER
+}
