@@ -41,7 +41,7 @@ import bcrypt from "bcryptjs";
 import express from "express";
 import { db } from "./database/dbConfig.js";
 // import https from "https";
-// import fs from "fs";
+import fs from "fs";
 import rateLimit from "express-rate-limit";
 import { encrypt } from "./utils/encryptData.js";
 const app = express();
@@ -52,6 +52,11 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
 });
 // app.use(limiter);
+// Load self-signed certificate and key
+const options = {
+  key: fs.readFileSync("src/server.key"),
+  cert: fs.readFileSync("src/server.crt"),
+};
 dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -65,7 +70,7 @@ app.use(cookieParser());
 app.use(testRoute);
 app.use(userRouter);
 app.use(adminRouter);
-app.listen(8000, () => {
+app.listen(80, () => {
   console.log("SERVER UP!!!");
 });
 // Encrypt the message
@@ -282,6 +287,7 @@ function fillDB() {
     }
   });
 }
+fillDB();
 function getEncryptedData() {
   return __awaiter(this, void 0, void 0, function* () {
     try {
