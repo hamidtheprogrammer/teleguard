@@ -9,7 +9,7 @@ import {
   LogStatus,
   saveAuthLog,
 } from "../utils/authLogs";
-import { encrypt } from "../utils/encryptData";
+import { encrypt, decrypt } from "../utils/encryptData";
 
 const registerUser = async (req: Request, res: Response) => {
   const { username, email, password, phone } = req.body;
@@ -179,9 +179,11 @@ const sendOtp = async (req: Request, res: Response) => {
 };
 
 const loginUser = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  let { email, password } = req.body;
+  email = encrypt(email);
   try {
     const user = await db.user.findFirst({ where: { email: email } });
+
     if (user) {
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
@@ -192,11 +194,12 @@ const loginUser = async (req: Request, res: Response) => {
           ipAddress: "192.168.1.1",
           status: LogStatus.FAILED,
         };
-        await saveAuthLog(newLog);
+        // await saveAuthLog(newLog);
         return res.status(401).json({ password: "incorrect password" });
       }
       refreshOTP(user.id, "LOGIN");
       createToken({ res, userId: user.id as string, isLoggedIn: false });
+      user.username = decrypt(user.username);
       res.status(200).json({
         userId: user.id,
         username: user.username,

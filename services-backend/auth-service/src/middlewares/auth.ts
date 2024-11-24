@@ -2,6 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { db } from "../database/dbConfig";
 import { decodedType } from "..";
+import { decrypt } from "../utils/encryptData";
+// import NodeCache from "node-cache";
+
+// const cache = new NodeCache();
 
 const verifyToken = async (req: Request, res: Response) => {
   const key = process.env.SECRET_KEY as string;
@@ -28,7 +32,7 @@ const verifyToken = async (req: Request, res: Response) => {
         if (decoded.isLoggedIn) {
           const user: decodedType = {
             userId: findUser.id as string,
-            username: findUser.username,
+            username: decrypt(findUser.username),
             role: findUser.role,
           };
           res.status(200).json(user);
@@ -52,17 +56,28 @@ const authenticate = async (
   res: Response,
   next: NextFunction
 ) => {
-  const key = process.env.SECRET_KEY as string;
-  const token = req.cookies.jwt;
+  try {
+    const key = process.env.SECRET_KEY as string;
+    const token = req.cookies?.jwt;
 
-  if (!token) {
-    return res.status(401).json({ auth: "Not authorized" });
-  }
+    // Check if token is present
+    if (!token) {
+      return res.status(401).json({ auth: "Not authorized" });
+    }
 
-  const decoded = jwt.verify(token, key) as decodedType;
+    // Verify JWT
+    const decoded = jwt.verify(token, key) as decodedType;
 
-  if (decoded) {
-    const findUser = await db.user.findUnique({
+    // Check if user info is in cache
+    // const cachedUser = cache.get(decoded.userId);
+    // if (cachedUser) {
+    //   // Attach cached user to request
+    //   req.user = cachedUser as decodedType;
+    //   return next();
+    // }
+
+    // Fetch user from the database
+    const user = await db.user.findUnique({
       where: { id: decoded.userId },
       select: {
         id: true,
@@ -71,24 +86,31 @@ const authenticate = async (
       },
     });
 
-    if (findUser) {
-      if (decoded.isLoggedIn) {
-        const user: decodedType = {
-          userId: findUser.id as string,
-          username: findUser.username,
-          role: findUser.role,
-        };
-        req.user = user;
-      } else {
-        return res.status(401).json({ auth: "user not logged in" });
-      }
-
-      next();
-    } else {
-      res.status(401).json({ auth: "user not found" });
+    if (!user) {
+      return res.status(401).json({ auth: "User not found" });
     }
-  } else {
-    res.status(401).json({ auth: "Not authorized" });
+
+    // Check if user is logged in
+    if (!decoded.isLoggedIn) {
+      return res.status(401).json({ auth: "User not logged in" });
+    }
+
+    // Decrypt username and set user in request object
+    const authenticatedUser: decodedType = {
+      userId: user.id,
+      username: decrypt(user.username),
+      role: user.role,
+    };
+    req.user = authenticatedUser;
+
+    // Cache the user data
+    // cache.set(authenticatedUser.userId, authenticatedUser, 600);
+
+    // Proceed to next middleware
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(401).json({ auth: "Invalid or expired token" });
   }
 };
 

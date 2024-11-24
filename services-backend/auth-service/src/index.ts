@@ -5,29 +5,37 @@ import userRouter from "./routes/userRoutes";
 import cookieParser from "cookie-parser";
 import { JwtPayload } from "jsonwebtoken";
 import adminRouter from "./routes/adminRoutes";
-import { Role, User } from "@prisma/client";
+import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
 import express from "express";
-import { encrypt, decrypt } from "./utils/encryptData";
 import { db } from "./database/dbConfig";
 // import https from "https";
-// import fs from "fs";
+import fs from "fs";
+
+import rateLimit from "express-rate-limit";
+import { encrypt } from "./utils/encryptData";
 
 const app = express();
 
-// // Load self-signed certificate and key
-// const options = {
-//   key: fs.readFileSync("src/server.key"),
-//   cert: fs.readFileSync("src/server.crt"),
-// };
+// Configure rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
 
-// // Start HTTPS server
+// app.use(limiter);
+
+// Load self-signed certificate and key
+const options = {
+  key: fs.readFileSync("src/server.key"),
+  cert: fs.readFileSync("src/server.crt"),
+};
+
+// Start HTTPS server
 // https.createServer(options, app).listen(3100, () => {
 //   console.log("HTTPS Server running on https://localhost:3100");
 // });
-
-// app.get("/test", (req, res) => res.send("Hello Secure World!"));
 
 export interface decodedType extends JwtPayload {
   userId: string;
@@ -63,9 +71,7 @@ app.listen(8000, () => {
   console.log("SERVER UP!!!");
 });
 
-// const message = "Hey, see if you can encrypt me.";
-
-// // Encrypt the message
+// Encrypt the message
 // const encryptedMessage = encrypt(message);
 // console.log("Encrypted:", encryptedMessage);
 
@@ -92,10 +98,17 @@ app.listen(8000, () => {
 async function fillDB() {
   const users = [
     {
+      username: "arthur",
+      email: "arthur@gmail.com",
+      password: "Hamidhamid1",
+      phone: "320-456-7890",
+      role: "DOCTOR",
+      verified: true,
+    },
+    {
       username: "DrAliceSmith",
       email: "alicesmith@example.com",
-      password:
-        "password123   $2a$10$3oauEpwGzIFsRm/DAsvSGe7jAi5mFSYqihFaJdbndlEU9g47Ip8HO",
+      password: "password123",
       phone: "320-456-7890",
       role: "DOCTOR",
       verified: true,
@@ -103,8 +116,7 @@ async function fillDB() {
     {
       username: "DrBobLane",
       email: "boblane@example.com",
-      password:
-        "securepass   $2a$10$3oauEpwGzIFsRm/DAsvSGe8kDThRBdIC4dMIWro4Ov4cRzgga/y0a",
+      password: "securepass",
       phone: "321-567-8901",
       role: "DOCTOR",
       verified: true,
@@ -120,8 +132,7 @@ async function fillDB() {
     {
       username: "DrDavidRussell",
       email: "davidrussell@example.com",
-      password:
-        "mypassword   $2a$10$3oauEpwGzIFsRm/DAsvSGe2sNSBPMv8Af6rTALWVJNs3LJBTd4UuO",
+      password: "mypassword",
       phone: "323-789-0123",
       role: "DOCTOR",
       verified: true,
@@ -288,6 +299,8 @@ async function fillDB() {
     console.log(error);
   }
 }
+
+fillDB();
 
 async function getEncryptedData() {
   try {

@@ -1,13 +1,23 @@
-FROM node:20
+# Use a lightweight Node.js image
+FROM node:20-slim
 
+# Set the working directory
 WORKDIR /app
 
-COPY package*.json .
+# Copy necessary files
+COPY dist/ ./dist
+COPY package.json package-lock.json ./
+COPY prisma ./prisma 
+# Include the Prisma schema directory
 
-RUN npm install
+# Install only production dependencies
+RUN npm install --production
 
-COPY . .
-
+# Run Prisma generate to build the Prisma client
 RUN npx prisma generate
 
-CMD [ "npx", "tsx", "src/index.ts" ] 
+# Expose the application port
+EXPOSE 8000
+
+# Start the application
+CMD ["node", "dist/index.js"]

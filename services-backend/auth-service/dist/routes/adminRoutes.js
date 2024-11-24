@@ -1,12 +1,9 @@
 import { Router } from "express";
-import { getAllUsers, getUserById } from "../controllers/adminController";
-import { authenticate } from "../middlewares/auth";
-
+import { getAllUsers, getUserById } from "../controllers/adminController.js";
+import { authenticate } from "../middlewares/auth.js";
 const adminRouter = Router();
-
 adminRouter.route("/get-all-users").get(authenticate, getAllUsers);
 adminRouter.route("/getUserById/:id").get(authenticate, getUserById);
-
 // adminRouter.route("/get-profile-details").post(authenticate, getUserById);
 // adminRouter.route("/force-delete-user").post(authenticate, forceDeleteUser);
 // adminRouter
@@ -30,5 +27,4 @@ adminRouter.route("/getUserById/:id").get(authenticate, getUserById);
 //     upload.array("imageFiles", 2),
 //     updateProduct
 //   );
-
 export default adminRouter;

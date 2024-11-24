@@ -5,21 +5,17 @@ import {
   registerUser,
   sendOtp,
   verifyOtp,
-} from "../controllers/userControllers";
-import { validate, validationRules } from "../middlewares/validateUser";
+} from "../controllers/userControllers.js";
+import { validate, validationRules } from "../middlewares/validateUser.js";
 import {
   authenticate,
   handleAuthForServices,
   loginMiddleware,
   verifyToken,
-} from "../middlewares/auth";
-
+} from "../middlewares/auth.js";
 import apicache from "apicache";
-
 const cache = apicache.middleware;
-
 const userRouter = Router();
-
 userRouter.route("/register").post(validationRules({}), validate, registerUser);
 userRouter.route("/verify-otp").post(loginMiddleware, verifyOtp);
 userRouter.route("/send-otp").post(authenticate, sendOtp);
@@ -39,5 +35,4 @@ userRouter.route("/get-auth").post(handleAuthForServices);
 //   );
 // userRouter.route("/delete-profile").get(authenticate, deleteCurrentUserProfile);
 userRouter.route("/logout").post(logout);
-
 export default userRouter;
