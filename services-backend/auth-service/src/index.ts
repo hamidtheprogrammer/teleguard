@@ -1,5 +1,5 @@
 import cors from "cors";
-import dotenv from "dotenv";
+
 import testRoute from "./routes/testRoute";
 import userRouter from "./routes/userRoutes";
 import cookieParser from "cookie-parser";
@@ -14,6 +14,10 @@ import fs from "fs";
 
 import rateLimit from "express-rate-limit";
 import { encrypt } from "./utils/encryptData";
+
+import dotenv from "dotenv";
+
+const DATABASE_CONNECTION_KEY = process.env.DATABASE_URL;
 
 const app = express();
 
@@ -106,20 +110,18 @@ async function fillDB() {
       verified: true,
     },
     {
+      id: "673351cc04bd2abf19d97635",
       username: "DrAliceSmith",
       email: "alicesmith@example.com",
       password: "password123",
       phone: "320-456-7890",
-      role: "DOCTOR",
-      verified: true,
     },
     {
+      id: "66e440d9a0c61196703cc8ea",
       username: "DrBobLane",
       email: "boblane@example.com",
       password: "securepass",
       phone: "321-567-8901",
-      role: "DOCTOR",
-      verified: true,
     },
     {
       username: "DrCarolAdams",
@@ -267,6 +269,8 @@ async function fillDB() {
     },
   ];
 
+  console.log(users[1], users[2]);
+
   const preparedUsers = [];
 
   const salt = await bcrypt.genSalt(10);
@@ -293,14 +297,12 @@ async function fillDB() {
       return;
     }
 
-    const saved = await db.user.createMany({ data: preparedUsers });
+    const saved = await db.user.create({ data: preparedUsers[0] });
     console.log(saved);
   } catch (error) {
     console.log(error);
   }
 }
-
-fillDB();
 
 async function getEncryptedData() {
   try {
@@ -312,7 +314,7 @@ async function getEncryptedData() {
         password: true,
         phone: true,
       },
-      take: 5,
+      take: 6,
     });
 
     console.log(data);

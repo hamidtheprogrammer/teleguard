@@ -14,13 +14,13 @@ const getAllUsers = async (req: Request, res: Response) => {
   const userRole = req.user.role;
   let { query } = req;
 
-  const documentLimit = 3;
+  const documentLimit = 6;
   let skip;
   let total;
   let pageNumber = Number(query.pageNumber) || 1;
   let pages;
 
-  skip = (pageNumber - 1) * 3;
+  skip = (pageNumber - 1) * documentLimit;
 
   let conditions: any;
 

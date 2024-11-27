@@ -3,9 +3,9 @@ import jwt from "jsonwebtoken";
 import { db } from "../database/dbConfig";
 import { decodedType } from "..";
 import { decrypt } from "../utils/encryptData";
-// import NodeCache from "node-cache";
+import NodeCache from "node-cache";
 
-// const cache = new NodeCache();
+const cache = new NodeCache();
 
 const verifyToken = async (req: Request, res: Response) => {
   const key = process.env.SECRET_KEY as string;
@@ -69,12 +69,12 @@ const authenticate = async (
     const decoded = jwt.verify(token, key) as decodedType;
 
     // Check if user info is in cache
-    // const cachedUser = cache.get(decoded.userId);
-    // if (cachedUser) {
-    //   // Attach cached user to request
-    //   req.user = cachedUser as decodedType;
-    //   return next();
-    // }
+    const cachedUser = cache.get(decoded.userId);
+    if (cachedUser) {
+      // Attach cached user to request
+      req.user = cachedUser as decodedType;
+      return next();
+    }
 
     // Fetch user from the database
     const user = await db.user.findUnique({
@@ -104,7 +104,7 @@ const authenticate = async (
     req.user = authenticatedUser;
 
     // Cache the user data
-    // cache.set(authenticatedUser.userId, authenticatedUser, 600);
+    cache.set(authenticatedUser.userId, authenticatedUser, 600);
 
     // Proceed to next middleware
     next();

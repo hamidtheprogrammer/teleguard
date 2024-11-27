@@ -209,38 +209,22 @@ const loginUser = (req, res) =>
     let { email, password } = req.body;
     email = encrypt(email);
     try {
-      const user = yield db.user.findFirst({ where: { email: email } });
-      if (user) {
-        const passwordMatch = yield bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-          const newLog = {
-            user: user.username,
-            action: LogAttempt.LOGIN,
-            details: LogDetails.FAILED_LOGIN_PASSWORD,
-            ipAddress: "192.168.1.1",
-            status: LogStatus.FAILED,
-          };
-          // await saveAuthLog(newLog);
-          return res.status(401).json({ password: "incorrect password" });
-        }
-        refreshOTP(user.id, "LOGIN");
-        createToken({ res, userId: user.id, isLoggedIn: false });
-        user.username = decrypt(user.username);
-        res.status(200).json({
-          userId: user.id,
-          username: user.username,
-        });
-      } else {
-        res.status(401).json({ email: "email not found" });
-        const newLog = {
-          user: "N/A",
-          action: LogAttempt.LOGIN,
-          details: LogDetails.FAILED_REGISTER_EMAIL,
-          ipAddress: "192.168.1.1",
-          status: LogStatus.FAILED,
-        };
-        yield saveAuthLog(newLog);
+      const user = yield db.user.findFirst({
+        where: { email: email },
+        select: { id: true, username: true, password: true },
+      });
+
+      if (!user || !(yield bcrypt.compare(password, user.password))) {
+        return res.status(401).json({ password: "incorrect password" });
       }
+
+      // refreshOTP(user.id, "LOGIN");
+      createToken({ res, userId: user.id, isLoggedIn: false });
+      user.username = decrypt(user.username);
+      res.status(200).json({
+        userId: user.id,
+        username: user.username,
+      });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" });

@@ -70,7 +70,7 @@ app.use(cookieParser());
 app.use(testRoute);
 app.use(userRouter);
 app.use(adminRouter);
-app.listen(80, () => {
+app.listen(8000, () => {
   console.log("SERVER UP!!!");
 });
 // Encrypt the message

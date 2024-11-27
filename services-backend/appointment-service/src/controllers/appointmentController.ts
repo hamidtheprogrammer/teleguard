@@ -26,6 +26,8 @@ const createAppointment = async (req: Request, res: Response) => {
     date,
   } = req.body;
 
+  console.log(docInfo);
+
   try {
     const newAppointment = await db.appointment.create({
       data: {
@@ -39,6 +41,8 @@ const createAppointment = async (req: Request, res: Response) => {
     });
     res.status(201).json(newAppointment);
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({ error: "Failed to create appointment" });
   }
 };
