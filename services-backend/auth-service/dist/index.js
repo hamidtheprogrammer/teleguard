@@ -261,8 +261,9 @@ function fillDB() {
         verified: true,
       },
     ];
+
     const preparedUsers = [];
-    const salt = yield bcrypt.genSalt(10);
+    const salt = yield bcrypt.genSalt(5);
     for (let i = 0; i < users.length; i++) {
       const hashedPassword = yield bcrypt.hash(users[i].password, salt);
       const newUser = {
@@ -287,7 +288,7 @@ function fillDB() {
     }
   });
 }
-fillDB();
+
 function getEncryptedData() {
   return __awaiter(this, void 0, void 0, function* () {
     try {

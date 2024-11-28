@@ -3,7 +3,6 @@ import { db } from "../database/dbConfig";
 
 const getAppointments = async (req: Request, res: Response) => {
   const { userId } = req.user;
-  console.log(userId);
 
   try {
     const appointments = await db.appointment.findMany();
@@ -25,8 +24,6 @@ const createAppointment = async (req: Request, res: Response) => {
     patientComplaint,
     date,
   } = req.body;
-
-  console.log(docInfo);
 
   try {
     const newAppointment = await db.appointment.create({

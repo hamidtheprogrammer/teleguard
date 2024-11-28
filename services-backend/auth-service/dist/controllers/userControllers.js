@@ -218,7 +218,7 @@ const loginUser = (req, res) =>
         return res.status(401).json({ password: "incorrect password" });
       }
 
-      // refreshOTP(user.id, "LOGIN");
+      refreshOTP(user.id, "LOGIN");
       createToken({ res, userId: user.id, isLoggedIn: false });
       user.username = decrypt(user.username);
       res.status(200).json({

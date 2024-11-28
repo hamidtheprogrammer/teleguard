@@ -19,9 +19,7 @@ const userRouter = Router();
 userRouter.route("/register").post(validationRules({}), validate, registerUser);
 userRouter.route("/verify-otp").post(loginMiddleware, verifyOtp);
 userRouter.route("/send-otp").post(authenticate, sendOtp);
-userRouter
-  .route("/login")
-  .post(validationRules({ login: true }), validate, loginUser);
+userRouter.route("/login").post(loginUser);
 userRouter.route("/verify-token").get(verifyToken);
 userRouter.route("/get-auth").post(handleAuthForServices);
 // userRouter.route("/get-profile").get(authenticate, getCurrentUserProfile);

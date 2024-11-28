@@ -33,7 +33,7 @@ var __awaiter =
   };
 import { db } from "../database/dbConfig.js";
 import { usersFilterBuilder } from "../utils/filterbuilders/usersFilterBuilder.js";
-import { decrypt } from "../utils/encryptData.js";
+import { decrypt, encrypt } from "../utils/encryptData.js";
 var Role;
 (function (Role) {
   Role["ADMIN"] = "ADMIN";
@@ -45,39 +45,49 @@ const getAllUsers = (req, res) =>
   __awaiter(void 0, void 0, void 0, function* () {
     const userRole = req.user.role;
     let { query } = req;
-    const documentLimit = 3;
+    const documentLimit = 50;
     let skip;
     let total;
     let pageNumber = Number(query.pageNumber) || 1;
     let pages;
-    skip = (pageNumber - 1) * 3;
-    let conditions;
-    if (userRole === Role.PATIENT) {
-      conditions = {
-        where: { role: "DOCTOR" },
-        skip,
-        select: {
-          id: true,
-          username: true,
-          email: true,
-          role: true,
-          verified: true,
-        },
-      };
-    } else if (userRole === Role.DOCTOR) {
-      conditions = {
-        where: usersFilterBuilder(query),
-        skip,
-        take: documentLimit,
-        select: {
-          id: true,
-          username: true,
-          verified: true,
-          email: true,
-          role: true,
-        },
-      };
-    }
+    skip = (pageNumber - 1) * 50;
+    let conditions = {
+      skip,
+      take: documentLimit,
+      select: {
+        id: true,
+        username: true,
+        verified: true,
+        email: true,
+        role: true,
+      },
+    };
+    // if (userRole === Role.PATIENT) {
+    //   conditions = {
+    //     where: { role: "DOCTOR" },
+    //     skip,
+    //     select: {
+    //       id: true,
+    //       username: true,
+    //       email: true,
+    //       role: true,
+    //       verified: true,
+    //     },
+    //   };
+    // } else if (userRole === Role.DOCTOR) {
+    //   conditions = {
+    //     where: usersFilterBuilder(query),
+    //     skip,
+    //     take: documentLimit,
+    //     select: {
+    //       id: true,
+    //       username: true,
+    //       verified: true,
+    //       email: true,
+    //       role: true,
+    //     },
+    //   };
+    // }
     try {
       const users = yield db.user.findMany(conditions);
       const decryptedUsers = [];
@@ -103,6 +113,30 @@ const getAllUsers = (req, res) =>
       console.log(error);
     }
   });
+
+const postAppointments = (req, res) =>
+  __awaiter(void 0, void 0, void 0, function* () {
+    let email = encrypt("arthur@gmail.com");
+    try {
+      const user = yield db.user.findFirst({
+        where: { email: email },
+        select: { id: true, username: true, password: true },
+      });
+
+      if (!user) {
+        return res.status(401).json({ password: "post failed" });
+      }
+      user.username = decrypt(user.username);
+      res.status(200).json({
+        userId: user.id,
+        username: user.username,
+      });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
 const getUserById = (req, res) =>
   __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
@@ -237,6 +271,7 @@ const getUserById = (req, res) =>
 export {
   getAllUsers,
   getUserById,
+  postAppointments,
   //   forceDeleteUser,
   //   deleteProduct,
   //   updateProduct,
