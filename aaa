@@ -38,11 +38,33 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: Deploy to EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker pull hamidsdockerhub/teleguard-auth-service:latest
-            docker rm -f teleguard-auth-service || true
-            docker run -d -p 80:80 --name teleguard-auth-service hamidsdockerhub/teleguard-auth-service:latest
+      # SSH connection to EC2
+      - name: Connect to EC2 instance via SSH
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+      # Pull the Docker image from DockerHub
+      - name: Pull Docker image on EC2 instance
+        run: docker pull hamidsdockerhub/teleguard-auth-service:latest
+      # Stop any previously running container (if exists)
+      - name: Stop existing container on EC2 instance
+        run: docker rm -f teleguard-auth-service || true
+      # Run the Docker image locally (simulating EC2 behavior)
+      - name: Run the Docker container on EC2 instance
+        run: docker run -d -p 80:80 --name teleguard-auth-service hamidsdockerhub/teleguard-auth-service:latest
           EOF
+
+    steps:
+      # Simulate SSH connection to EC2
+      - name: Connect to EC2 instance via SSH
+        run: echo "Pretending to SSH into EC2 instance..."
+
+      # Pull the Docker image from DockerHub
+      - name: Pull Docker image on EC2 instance
+        run: docker pull hamidsdockerhub/teleguard-auth-service:latest
+
+      # Stop any previously running container (if exists)
+      - name: Stop existing container on EC2 instance
+        run: docker rm -f teleguard-auth-service || true
+
+      # Run the Docker image locally (simulating EC2 behavior)
+      - name: Run the Docker container on EC2 instance
+        run: docker run -d -p 80:80 --name teleguard-auth-service hamidsdockerhub/teleguard-auth-service:latest

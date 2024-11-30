@@ -45,12 +45,12 @@ const getAllUsers = (req, res) =>
   __awaiter(void 0, void 0, void 0, function* () {
     const userRole = req.user.role;
     let { query } = req;
-    const documentLimit = 50;
+    const documentLimit = 5;
     let skip;
     let total;
     let pageNumber = Number(query.pageNumber) || 1;
     let pages;
-    skip = (pageNumber - 1) * 50;
+    skip = (pageNumber - 1) * documentLimit;
     let conditions = {
       skip,
       take: documentLimit,
