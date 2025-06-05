@@ -1,0 +1,44 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+model Appointment {
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  docInfo          DoctorInfo      // Embedded doctor information
+  patientInfo      PatientInfo     // Embedded patient information
+  status           AppointmentStatus @default(PENDING) // Status of the appointment
+  doctorComment    String?         // Optional comment from the doctor
+  patientComplaint String?         // Optional complaint from the patient
+  date             DateTime?         @default(now())// Date and time of the appointment
+
+  @@map("appointments")
+}
+
+enum AppointmentStatus {
+  PENDING
+  APPROVED
+  COMPLETED
+  DECLINED
+}
+
+type DoctorInfo {
+  id    String    @db.ObjectId
+  name  String?
+}
+
+type PatientInfo {
+  id    String    @db.ObjectId
+  name  String?
+}

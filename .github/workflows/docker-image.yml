@@ -1,0 +1,55 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - uses: actions/checkout@v4
+
+      # Log in to DockerHub
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      # Build the Docker image from the Dockerfile inside "server" directory and tag with version
+      - name: Build the Docker image
+        run: docker build ./services-backend/auth-service --file ./services-backend/auth-service/Dockerfile --tag hamidsdockerhub/teleguard-auth-service:latest
+
+      # Push the image to DockerHub (latest)
+      - name: Push Docker image to DockerHub (latest)
+        run: docker push hamidsdockerhub/teleguard-auth-service:latest
+
+  deploy-application:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install SSH Key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+      # SSH connection to EC2
+      - name: Connect to EC2 instance via SSH
+        run: ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+      # Pull the Docker image from DockerHub
+      - name: Pull Docker image on EC2 instance
+        run: docker pull hamidsdockerhub/teleguard-auth-service:latest
+      # Stop any previously running container (if exists)
+      - name: Stop existing container on EC2 instance
+        run: docker rm -f teleguard-auth-service || true
+      # Run the Docker image locally (simulating EC2 behavior)
+      - name: Run the Docker container on EC2 instance
+        run:
+          docker run -d -p 80:80 --name teleguard-auth-service hamidsdockerhub/teleguard-auth-service:latest
+          EOF
